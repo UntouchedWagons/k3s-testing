@@ -1,0 +1,9 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: jellyfin-storage-snapshot
+  namespace: default
+spec:
+  volumeSnapshotClassName: truenas-snapshotclass # Optional if a default class is set
+  source:
+    persistentVolumeClaimName: jellyfin-storage # The PVC you are snapshotting

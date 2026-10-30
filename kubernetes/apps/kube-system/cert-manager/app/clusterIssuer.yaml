@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/cert-manager.io/clusterissuer_v1.json
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: com-untouchedwagons
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ENC[AES256_GCM,data:k4wHLooUQgjA3L28NvjAQgvkS1xI148UZg==,iv:lNYVXckWYsEAQDkIVowqS3A75pioYSf26tfZUebobHA=,tag:8FkwyGIPLmw5LfgTJY4NDA==,type:str]
+    privateKeySecretRef:
+      name: com-untouchedwagons
+    solvers:
+      - dns01:
+          cloudflare:
+            email: ENC[AES256_GCM,data:W3KwvMKciUhki7+ljk3e3Dwk4kU23fmolA==,iv:XBZ1x5tLtvVUgbGhDbEpOGu2O5vhen3Qic2YFwovsRk=,tag:DLmth7i7XEAInNs8/5Fs/w==,type:str]
+            apiTokenSecretRef:
+              name: cloudflare-token-secret
+              key: cloudflare-token
+        selector:
+          dnsZones:
+            - untouchedwagons.com
+sops:
+  age:
+    - recipient: age1gdt6s73quvrlprl4mt9fssrp378rmxtjrmykwnmvtsrt8g20rd2qh8s5jn
+      enc: |
+        -----BEGIN AGE ENCRYPTED FILE-----
+        YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzdkFkWU1VUlc1MHcyMDc5
+        QUxDUkxYVXJrSDd0bHEzWUVsblg3dWhyNkhjCmlLcXF1ZXVqY25qUkZsdmIvYmhV
+        SDJzM3hic3NyVTJDQ3k4Wjc4K1hVMVUKLS0tIFpWdS9HaG41UFIxWkVnaFNFclRa
+        akFXcDB5blRDM2hiTS8zRDJzRlZybTAKRKtNMpnDVhXWTlzxHvFHlSpjZKkB7okb
+        dO2DQLeq8/EwRtRFEIeqBVhylMjKfDhkz5qE+jDahvq1NxoB+KIE4w==
+        -----END AGE ENCRYPTED FILE-----
+  lastmodified: "2026-09-09T21:36:43Z"
+  mac: ENC[AES256_GCM,data:3Z7L/2vmwGq/qihG0WYlQc/U5Yd9fmb2/f8wEypDBmXzDCklyF0bIa2NB9jlMi8VelZ2MBnVDyqRL1t2X5goUQtdBQAMLwgYh9uw5qTsUmuCPW4K0hRkw/zgnAMqJsJsjWTQY43+1YMOEfuf9F61G7H1mcpxXNrSE6D8K5fkNgo=,iv:6/zcq3rFoWs80S6MndBgRFgeOp/osPXAKvO0pnj13Yg=,tag:0H7u2IqVt/9voHbyCYQvlw==,type:str]
+  encrypted_regex: ^(email)$
+  version: 3.12.1

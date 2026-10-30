@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/gateway.networking.k8s.io/gateway_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: cilium-gateway
+  namespace: kube-system
+spec:
+  gatewayClassName: cilium
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: https
+      protocol: HTTPS
+      port: 443
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: com-untouchedwagons
+        mode: Terminate
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/cilium.io/ciliuml2announcementpolicy_v2alpha1.json
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: local-l2-policy
+  namespace: kube-system
+spec:
+  # Selects the IP pool created in Step 3
+  loadBalancerIPs: true
+  # Change 'eth0' to your node's primary network interface name (e.g., enp3s0, bond0)
+  interfaces:
+    - ^eth
+    - ^ens
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/cilium.io/ciliumloadbalancerippool_v2.json
+apiVersion: cilium.io/v2
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: local-lb-pool
+  namespace: kube-system
+spec:
+  blocks:
+    - cidr: "192.168.20.200/29" # Allocates a range: 192.168.20.200 to 192.168.20.207
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hubble-ui-route
+  namespace: kube-system # Deployed where the hubble-ui service lives
+spec:
+  parentRefs:
+    - name: cilium-gateway
+      namespace: kube-system # Points back to your gateway in the kube-system namespace
+      sectionName: https
+  hostnames:
+    - "hubble.${CLUSTER_DOMAIN}" # The domain name you will use to access the dashboard
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: hubble-ui
+          port: 80
+---
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/gateway.networking.k8s.io/httproute_v1.json
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: https-redirect
+spec:
+  # Apply this HTTPRoute to the internal Envoy Gateway
+  parentRefs:
+    - name: cilium-gateway
+      namespace: kube-system
+      sectionName: http
+  # Redirect all HTTP traffic to HTTPS
+  rules:
+    - filters:
+        - type: RequestRedirect
+          requestRedirect:
+            scheme: https
+            statusCode: 301

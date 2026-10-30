@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/helm.toolkit.fluxcd.io/helmrelease_v2.json
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: truenas-csi
+spec:
+  chart:
+    spec:
+      chart: truenas-csi
+      version: 1.4.0
+      sourceRef:
+        name: truenas-csi
+        kind: HelmRepository
+        namespace: kube-system
+  interval: 5m
+  values:
+    truenas:
+      url: "wss://192.168.20.30"
+      defaultPool: "nvme"
+      apiKey: "2-TEDDEHGhvQNleSKTI2q6LJjuhcbWqxmE9i1OjLfULTBZc0EuEHF0g3Qe1jCuSbeI"
+      insecureSkipTLS: "true"
+
+    storageClasses:
+      - name: truenas-iscsi
+        allowVolumeExpansion: true
+        parameters:
+          protocol: iscsi
+          fsType: ext4
+
+    volumeSnapshotClass:
+      enabled: true
+      deletionPolicy: Delete
+
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: DaemonSet
+              name: truenas-csi-node
+            patch: |-
+              apiVersion: apps/v1
+              kind: DaemonSet
+              metadata:
+                name: truenas-csi-node
+              spec:
+                template:
+                  spec:
+                    volumes:
+                      - name: iscsi-dir
+                        hostPath:
+                          path: /etc/iscsi
+                          type: DirectoryOrCreate

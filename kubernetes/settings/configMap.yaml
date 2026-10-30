@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://k8s-schemas.home-operations.com/core/configmap_v1.json
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-vars
+data:
+  CLUSTER_DOMAIN: testing.untouchedwagons.com # ${CLUSTER_DOMAIN}
+  CLUSTER_NAME: k3s-testing # ${CLUSTER_NAME}

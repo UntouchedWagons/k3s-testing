@@ -1,0 +1,9 @@
+apiVersion: v1alpha1
+kind: ExtensionServiceConfig
+name: nut-client
+configFiles:
+  - content: |
+      MONITOR OR1500LCDRT2U@nut.internal.untouchedwagons.com 1 observer StarchOccupationTerrificThin secondary
+    mountPath: /usr/local/etc/nut/upsmon.conf
+environment:
+  - NUT_UPS=OR1500LCDRT2U

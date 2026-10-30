@@ -1,0 +1,22 @@
+---
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: nvidia # Module name.
+---
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: nvidia_uvm # Module name.
+---
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: nvidia_drm # Module name.
+---
+apiVersion: v1alpha1
+kind: KernelModuleConfig
+name: nvidia_modeset # Module name.
+---
+apiVersion: v1alpha1
+kind: SysctlConfig
+# Used to configure the machine's sysctls (kernel parameters under `/proc/sys`).
+params:
+  net.core.bpf_jit_harden: 1
